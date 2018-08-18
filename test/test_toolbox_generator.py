@@ -167,6 +167,29 @@ class TestToolboxGenerator(TestCase):
             ToolboxGenerator()._register_crossover(toolbox_mock, evolutionary_configuration)
             self.assertTrue('Unsupported crossover type: Spring' in context.exception)
 
+    @patch("deap.tools.selTournament")
+    def test_given_an_evolution_configuration_with_tournament_selection_when_register_selection_then_the_tournament_selection_should_be_registered(
+            self, selection_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+
+        toolbox_mock = MagicMock()
+
+        ToolboxGenerator()._register_selection(toolbox_mock, evolutionary_configuration)
+
+        toolbox_mock.register.assert_called_with("select", selection_mock, tournsize=3)
+
+    @patch("deap.tools.selTournament")
+    def test_given_an_evolution_configuration_with_unknown_selection_when_register_selection_then_an_exception_should_be_thrown(
+            self, selection_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+        evolutionary_configuration.selection["name"] = "Privileged"
+
+        toolbox_mock = MagicMock()
+
+        with self.assertRaises(Exception) as context:
+            ToolboxGenerator()._register_selection(toolbox_mock, evolutionary_configuration)
+            self.assertTrue('Unsupported selection type: Privileged' in context.exception)
+
     def _get_evolution_configuration(self):
         configurations = [
             ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),

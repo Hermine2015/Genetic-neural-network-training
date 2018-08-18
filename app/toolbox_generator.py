@@ -61,6 +61,15 @@ class ToolboxGenerator:
         else:
             raise Exception("Unsuported crossover type: {}".format(name))
 
+    def _register_selection(self, toolbox, evolution_configuration):
+        selection_dictionary = evolution_configuration.selection
+        name = selection_dictionary["name"]
+
+        if name == "Tournament":
+            self._register_tournament_selection(toolbox, selection_dictionary)
+        else:
+            raise Exception("Unsuported selection type: {}".format(name))
+
     def _register_gaussian_mutation(self, toolbox, parameters):
         toolbox.register("mutate", tools.mutGaussian,
                          mu=parameters["mu"], sigma=parameters["sigma"], indpb=parameters["indpb"])
@@ -70,6 +79,9 @@ class ToolboxGenerator:
 
     def _register_two_point_crossover(self, toolbox):
         toolbox.register("mate", tools.cxTwoPoint)
+
+    def _register_tournament_selection(self, toolbox, parameters):
+        toolbox.register("select", tools.selTournament, tournsize=parameters["tournament-size"])
 
     def _get_from_toolbox(self, toolbox, attribute_name):
         return getattr(toolbox, attribute_name)
