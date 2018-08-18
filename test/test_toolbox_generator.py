@@ -71,3 +71,19 @@ class TestToolboxGenerator(TestCase):
         ToolboxGenerator().add_fitness_to_creator(creator_mock, desired_scores)
 
         creator_mock.create.assert_called_with("FitnessMulti", ANY, weights=desired_scores)
+
+    def test_given_configurations_when_get_attributes_to_evolve_from_configurations_then_the_attributes_should_be_returned_as_a_tuple(self):
+        configurations = [
+            ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
+            ToolboxConfiguration('beta_1', random.uniform, 0.5, 0.8),
+            ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
+        ]
+
+        toolbox_mock = MagicMock()
+        toolbox_mock.total_hidden_layers = 'fake layers'
+        toolbox_mock.beta_1 = 'fake beta'
+        toolbox_mock.epsilon = 'fake epsilon'
+
+        result = ToolboxGenerator().get_attributes_to_evolve_from_configurations(toolbox_mock, configurations)
+
+        self.assertEqual(('fake layers', 'fake beta', 'fake epsilon'), result)

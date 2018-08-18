@@ -16,3 +16,11 @@ class ToolboxGenerator:
 
     def add_fitness_to_creator(self, creator, desired_scores=(-1.0)):
         creator.create("FitnessMulti", base.Fitness, weights=desired_scores)
+
+    def get_attributes_to_evolve_from_configurations(self, toolbox, configurations):
+        attributes_as_list = [
+            getattr(toolbox, configuration.name)
+            for configuration in configurations
+        ]
+
+        return tuple(attributes_as_list)
