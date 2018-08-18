@@ -6,6 +6,7 @@ import random
 from unittest.mock import call
 from unittest.mock import patch
 from unittest.mock import ANY
+from app.evolution_configuration import EvolutionConfiguration
 
 class TestToolboxGenerator(TestCase):
 
@@ -17,10 +18,25 @@ class TestToolboxGenerator(TestCase):
             ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
         ]
 
-        evolution_configuration = {
-            "genes": configurations,
-            "scores": [ { "name": "accuracy", "minimize": False } ]
-        }
+        evolution_configuration = EvolutionConfiguration(
+            configurations,
+            [ { "name": "accuracy", "minimize": False } ],
+            {
+                "name": "Gaussian",
+                "mu": 0.0,
+                "sigma": 0.2,
+                "indpb": 0.2,
+                "probability": 0.3
+            },
+            {
+                "name": "Two-point",
+                "probability": 0.5
+            },
+            {
+                "name": "Tournament",
+                "tournament-size": 3
+            }
+        )
 
         result = ToolboxGenerator().get_toolbox(evolution_configuration)
 
@@ -39,7 +55,7 @@ class TestToolboxGenerator(TestCase):
 
         toolbox_mock = MagicMock()
 
-        ToolboxGenerator().register_all_from_configurations(toolbox_mock, configurations)
+        ToolboxGenerator()._register_all_from_configurations(toolbox_mock, configurations)
 
         calls = [
             call.register('total_hidden_layers', random.randint, 1, 5),
@@ -84,7 +100,7 @@ class TestToolboxGenerator(TestCase):
 
         individual_mock.return_value = MagicMock(Individual='fake')
 
-        ToolboxGenerator().initialise_individuals(toolbox_mock, configurations, mock_fitness)
+        ToolboxGenerator()._initialise_individuals(toolbox_mock, configurations, mock_fitness)
 
         calls = [
             call.register('individual', initialization_mock, ANY, ( 'fake 1', 'fake 2', 'fake 3' ), n=3),
@@ -97,7 +113,7 @@ class TestToolboxGenerator(TestCase):
         desired_scores = (-1.0, -1.0, -1.0, -1.0, 1.0)
         creator_mock = MagicMock()
 
-        ToolboxGenerator().add_fitness_to_creator(creator_mock, desired_scores)
+        ToolboxGenerator()._add_fitness_to_creator(creator_mock, desired_scores)
 
         creator_mock.create.assert_called_with("FitnessMulti", ANY, weights=desired_scores)
 
