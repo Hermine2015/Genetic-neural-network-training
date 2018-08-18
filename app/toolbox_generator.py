@@ -3,15 +3,15 @@ from deap import creator, tools, base
 
 class ToolboxGenerator:
     def get_toolbox(self, evolution_configuration):
-        configurations = evolution_configuration.genes
+        gene_configurations = evolution_configuration.genes
 
         toolbox = base.Toolbox()
 
-        self._register_all_from_configurations(toolbox, configurations)
+        self._register_all_from_configurations(toolbox, gene_configurations)
         self._add_fitness_to_creator(creator, name="FitnessMulti") #todo change to get min and may from config
 
         fitness = self._get_from_toolbox(creator, "FitnessMulti")
-        self._initialise_individuals(toolbox, configurations, fitness)
+        self._initialise_individuals(toolbox, gene_configurations, fitness)
 
         return toolbox
 
@@ -43,4 +43,21 @@ class ToolboxGenerator:
 
     def _get_from_toolbox(self, toolbox, attribute_name):
         return getattr(toolbox, attribute_name)
+
+    def _register_mutation(self, toolbox, evolution_configuration):
+        mutation_dictionary = evolution_configuration.mutation
+
+        if mutation_dictionary["name"] == "Gaussian":
+            self._register_gaussian_mutation(toolbox, mutation_dictionary)
+        elif mutation_dictionary["name"] == "Flip-bit":
+            self._register_flipbit_mutation(toolbox, mutation_dictionary)
+        else:
+            raise Exception("Unsuported mutation type: {}".format(mutation_dictionary["name"]))
+
+    def _register_gaussian_mutation(self, toolbox, parameters):
+        toolbox.register("mutate", tools.mutGaussian,
+                         mu=parameters["mu"], sigma=parameters["sigma"], indpb=parameters["indpb"])
+
+    def _register_flipbit_mutation(self, toolbox, parameters):
+        toolbox.register("mutate", tools.mutFlipBit, indpb=parameters["indpb"])
 

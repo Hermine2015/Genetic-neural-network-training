@@ -11,32 +11,7 @@ from app.evolution_configuration import EvolutionConfiguration
 class TestToolboxGenerator(TestCase):
 
     def test_given_a_list_of_configurations_when_get_toolbox_a_toolbox_should_be_registered_and_returned(self):
-
-        configurations = [
-            ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
-            ToolboxConfiguration('beta_1', random.uniform, 0.5, 0.8),
-            ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
-        ]
-
-        evolution_configuration = EvolutionConfiguration(
-            configurations,
-            [ { "name": "accuracy", "minimize": False } ],
-            {
-                "name": "Gaussian",
-                "mu": 0.0,
-                "sigma": 0.2,
-                "indpb": 0.2,
-                "probability": 0.3
-            },
-            {
-                "name": "Two-point",
-                "probability": 0.5
-            },
-            {
-                "name": "Tournament",
-                "tournament-size": 3
-            }
-        )
+        evolution_configuration = self._get_evolution_configuration()
 
         result = ToolboxGenerator().get_toolbox(evolution_configuration)
 
@@ -132,3 +107,76 @@ class TestToolboxGenerator(TestCase):
         result = ToolboxGenerator()._get_attributes_to_evolve_from_configurations(toolbox_mock, configurations)
 
         self.assertEqual(('fake layers', 'fake beta', 'fake epsilon'), result)
+
+    @patch("deap.tools.mutGaussian")
+    def test_an_evolution_configuration_with_gaussian_mutation_when_register_mutation_then_the_gaussian_mutation_should_be_registered(
+            self, mutation_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+
+        toolbox_mock = MagicMock()
+        toolbox_mock.total_hidden_layers = 'fake layers'
+        toolbox_mock.beta_1 = 'fake beta'
+        toolbox_mock.epsilon = 'fake epsilon'
+
+        ToolboxGenerator()._register_mutation(toolbox_mock, evolutionary_configuration)
+
+        toolbox_mock.register.assert_called_with("mutate", mutation_mock, mu=0.0, sigma=0.2, indpb=0.2)
+
+    @patch("deap.tools.mutFlipBit")
+    def test_an_evolution_configuration_with_flip_bit_mutation_when_register_mutation_then_the_flip_bit_mutation_should_be_registered(
+            self, mutation_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+        evolutionary_configuration.mutation["name"] = "Flip-bit"
+        evolutionary_configuration.mutation["indpb"] = 0.3
+
+        toolbox_mock = MagicMock()
+        toolbox_mock.total_hidden_layers = 'fake layers'
+        toolbox_mock.beta_1 = 'fake beta'
+        toolbox_mock.epsilon = 'fake epsilon'
+
+        ToolboxGenerator()._register_mutation(toolbox_mock, evolutionary_configuration)
+
+        toolbox_mock.register.assert_called_with("mutate", mutation_mock, indpb=0.3)
+
+    @patch("deap.tools.mutFlipBit")
+    def test_an_evolution_configuration_with_unsupported_mutation_when_register_mutation_then_an_exception_should_be_thrown(
+            self, mutation_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+        evolutionary_configuration.mutation["name"] = "Magic"
+
+        toolbox_mock = MagicMock()
+        toolbox_mock.total_hidden_layers = 'fake layers'
+        toolbox_mock.beta_1 = 'fake beta'
+        toolbox_mock.epsilon = 'fake epsilon'
+
+        with self.assertRaises(Exception) as context:
+            ToolboxGenerator()._register_mutation(toolbox_mock, evolutionary_configuration)
+            self.assertTrue('Unsupported mutation type: Magic' in context.exception)
+
+
+    def _get_evolution_configuration(self):
+        configurations = [
+            ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
+            ToolboxConfiguration('beta_1', random.uniform, 0.5, 0.8),
+            ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
+        ]
+
+        return EvolutionConfiguration(
+            configurations,
+            [{"name": "accuracy", "minimize": False}],
+            {
+                "name": "Gaussian",
+                "mu": 0.0,
+                "sigma": 0.2,
+                "indpb": 0.2,
+                "probability": 0.3
+            },
+            {
+                "name": "Two-point",
+                "probability": 0.5
+            },
+            {
+                "name": "Tournament",
+                "tournament-size": 3
+            }
+        )
