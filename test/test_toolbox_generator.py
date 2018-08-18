@@ -8,6 +8,28 @@ from unittest.mock import patch
 from unittest.mock import ANY
 
 class TestToolboxGenerator(TestCase):
+
+    def test_given_a_list_of_configurations_when_get_toolbox_a_toolbox_should_be_registered_and_returned(self):
+
+        configurations = [
+            ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
+            ToolboxConfiguration('beta_1', random.uniform, 0.5, 0.8),
+            ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
+        ]
+
+        evolution_configuration = {
+            "genes": configurations,
+            "scores": [ { "name": "accuracy", "minimize": False } ]
+        }
+
+        result = ToolboxGenerator().get_toolbox(evolution_configuration)
+
+        self.assertIsNotNone(result.total_hidden_layers)
+        self.assertIsNotNone(result.beta_1)
+        self.assertIsNotNone(result.epsilon)
+        self.assertIsNotNone(result.individual)
+        self.assertIsNotNone(result.population)
+
     def test_given_a_list_of_configurations_when_register_all_from_configurations_the_attributes_should_all_be_registered_on_the_toolbox(self):
         configurations = [
             ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
@@ -37,11 +59,11 @@ class TestToolboxGenerator(TestCase):
 
         toolbox_mock = MagicMock()
 
-        ToolboxGenerator().register_from_configuration(toolbox_mock, configuration)
+        ToolboxGenerator()._register_from_configuration(toolbox_mock, configuration)
 
         toolbox_mock.register.assert_called_with('total_hidden_layers', random.randint, 1, 5)
 
-    @patch('app.toolbox_generator.ToolboxGenerator.get_attributes_to_evolve_from_configurations')
+    @patch('app.toolbox_generator.ToolboxGenerator._get_attributes_to_evolve_from_configurations')
     @patch('deap.tools.initRepeat')
     @patch('deap.creator.create')
     @patch('deap.tools.initCycle')
@@ -91,6 +113,6 @@ class TestToolboxGenerator(TestCase):
         toolbox_mock.beta_1 = 'fake beta'
         toolbox_mock.epsilon = 'fake epsilon'
 
-        result = ToolboxGenerator().get_attributes_to_evolve_from_configurations(toolbox_mock, configurations)
+        result = ToolboxGenerator()._get_attributes_to_evolve_from_configurations(toolbox_mock, configurations)
 
         self.assertEqual(('fake layers', 'fake beta', 'fake epsilon'), result)
