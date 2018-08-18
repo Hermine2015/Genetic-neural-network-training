@@ -5,7 +5,12 @@ from sklearn.metrics import f1_score
 
 class ScorerFactory:
     def get_scorer_from_configuration(self, configuration):
-        return None
+        return {
+            'accuracy': AccuracyScorer(),
+            'recall': RecallScorer(),
+            'precision': PrecisionScorer(),
+            'f1': F1Scorer()
+        }.get(configuration["name"], AccuracyScorer())
 
 class Scorer:
     def get_score(self, expected, predicted, classes):
@@ -19,11 +24,10 @@ class RecallScorer(Scorer):
     def get_score(self, expected, predicted, classes):
         return recall_score(expected, predicted, average='weighted', labels=classes)
 
-class PrecisionScore(Scorer):
+class PrecisionScorer(Scorer):
     def get_score(self, expected, predicted, classes):
         return precision_score(expected, predicted, average='weighted', labels=classes)
 
 class F1Scorer(Scorer):
     def get_score(self, expected, predicted, classes):
         return f1_score(expected, predicted, average='weighted', labels=classes)
-
