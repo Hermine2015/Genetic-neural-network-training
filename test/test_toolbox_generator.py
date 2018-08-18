@@ -109,50 +109,63 @@ class TestToolboxGenerator(TestCase):
         self.assertEqual(('fake layers', 'fake beta', 'fake epsilon'), result)
 
     @patch("deap.tools.mutGaussian")
-    def test_an_evolution_configuration_with_gaussian_mutation_when_register_mutation_then_the_gaussian_mutation_should_be_registered(
+    def test_given_an_evolution_configuration_with_gaussian_mutation_when_register_mutation_then_the_gaussian_mutation_should_be_registered(
             self, mutation_mock):
         evolutionary_configuration = self._get_evolution_configuration()
 
         toolbox_mock = MagicMock()
-        toolbox_mock.total_hidden_layers = 'fake layers'
-        toolbox_mock.beta_1 = 'fake beta'
-        toolbox_mock.epsilon = 'fake epsilon'
 
         ToolboxGenerator()._register_mutation(toolbox_mock, evolutionary_configuration)
 
         toolbox_mock.register.assert_called_with("mutate", mutation_mock, mu=0.0, sigma=0.2, indpb=0.2)
 
     @patch("deap.tools.mutFlipBit")
-    def test_an_evolution_configuration_with_flip_bit_mutation_when_register_mutation_then_the_flip_bit_mutation_should_be_registered(
+    def test_given_an_evolution_configuration_with_flip_bit_mutation_when_register_mutation_then_the_flip_bit_mutation_should_be_registered(
             self, mutation_mock):
         evolutionary_configuration = self._get_evolution_configuration()
         evolutionary_configuration.mutation["name"] = "Flip-bit"
         evolutionary_configuration.mutation["indpb"] = 0.3
 
         toolbox_mock = MagicMock()
-        toolbox_mock.total_hidden_layers = 'fake layers'
-        toolbox_mock.beta_1 = 'fake beta'
-        toolbox_mock.epsilon = 'fake epsilon'
 
         ToolboxGenerator()._register_mutation(toolbox_mock, evolutionary_configuration)
 
         toolbox_mock.register.assert_called_with("mutate", mutation_mock, indpb=0.3)
 
     @patch("deap.tools.mutFlipBit")
-    def test_an_evolution_configuration_with_unsupported_mutation_when_register_mutation_then_an_exception_should_be_thrown(
+    def test_given_an_evolution_configuration_with_unsupported_mutation_when_register_mutation_then_an_exception_should_be_thrown(
             self, mutation_mock):
         evolutionary_configuration = self._get_evolution_configuration()
-        evolutionary_configuration.mutation["name"] = "Magic"
+        evolutionary_configuration.mutation["name"] = "Radiation"
 
         toolbox_mock = MagicMock()
-        toolbox_mock.total_hidden_layers = 'fake layers'
-        toolbox_mock.beta_1 = 'fake beta'
-        toolbox_mock.epsilon = 'fake epsilon'
 
         with self.assertRaises(Exception) as context:
             ToolboxGenerator()._register_mutation(toolbox_mock, evolutionary_configuration)
-            self.assertTrue('Unsupported mutation type: Magic' in context.exception)
+            self.assertTrue('Unsupported mutation type: Radiation' in context.exception)
 
+    @patch("deap.tools.cxTwoPoint")
+    def test_given_an_evolution_configuration_with_two_point_crossover_when_register_crossover_then_the_two_point_crossover_should_be_registered(
+            self, crossover_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+
+        toolbox_mock = MagicMock()
+
+        ToolboxGenerator()._register_crossover(toolbox_mock, evolutionary_configuration)
+
+        toolbox_mock.register.assert_called_with("mate", crossover_mock)
+
+    @patch("deap.tools.cxTwoPoint")
+    def test_given_an_evolution_configuration_with_unknown_crossover_when_register_crossover_then_an_exception_should_be_thrown(
+            self, crossover_mock):
+        evolutionary_configuration = self._get_evolution_configuration()
+        evolutionary_configuration.crossover["name"] = "Spring"
+
+        toolbox_mock = MagicMock()
+
+        with self.assertRaises(Exception) as context:
+            ToolboxGenerator()._register_crossover(toolbox_mock, evolutionary_configuration)
+            self.assertTrue('Unsupported crossover type: Spring' in context.exception)
 
     def _get_evolution_configuration(self):
         configurations = [

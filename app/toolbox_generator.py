@@ -41,18 +41,25 @@ class ToolboxGenerator:
 
         return tuple(attributes_as_list)
 
-    def _get_from_toolbox(self, toolbox, attribute_name):
-        return getattr(toolbox, attribute_name)
-
     def _register_mutation(self, toolbox, evolution_configuration):
         mutation_dictionary = evolution_configuration.mutation
+        name = mutation_dictionary["name"]
 
-        if mutation_dictionary["name"] == "Gaussian":
+        if name == "Gaussian":
             self._register_gaussian_mutation(toolbox, mutation_dictionary)
-        elif mutation_dictionary["name"] == "Flip-bit":
+        elif name == "Flip-bit":
             self._register_flipbit_mutation(toolbox, mutation_dictionary)
         else:
-            raise Exception("Unsuported mutation type: {}".format(mutation_dictionary["name"]))
+            raise Exception("Unsuported mutation type: {}".format(name))
+
+    def _register_crossover(self, toolbox, evolution_configuration):
+        crossover_dictionary = evolution_configuration.crossover
+        name = crossover_dictionary["name"]
+
+        if name == "Two-point":
+            self._register_two_point_crossover(toolbox)
+        else:
+            raise Exception("Unsuported crossover type: {}".format(name))
 
     def _register_gaussian_mutation(self, toolbox, parameters):
         toolbox.register("mutate", tools.mutGaussian,
@@ -61,3 +68,8 @@ class ToolboxGenerator:
     def _register_flipbit_mutation(self, toolbox, parameters):
         toolbox.register("mutate", tools.mutFlipBit, indpb=parameters["indpb"])
 
+    def _register_two_point_crossover(self, toolbox):
+        toolbox.register("mate", tools.cxTwoPoint)
+
+    def _get_from_toolbox(self, toolbox, attribute_name):
+        return getattr(toolbox, attribute_name)
