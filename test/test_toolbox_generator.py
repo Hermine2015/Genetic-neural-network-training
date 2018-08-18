@@ -8,6 +8,25 @@ from unittest.mock import patch
 from unittest.mock import ANY
 
 class TestToolboxGenerator(TestCase):
+    def test_given_a_list_of_configurations_when_register_all_from_configurations_the_attributes_should_all_be_registered_on_the_toolbox(self):
+        configurations = [
+            ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
+            ToolboxConfiguration('beta_1', random.uniform, 0.5, 0.8),
+            ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
+        ]
+
+        toolbox_mock = MagicMock()
+
+        ToolboxGenerator().register_all_from_configurations(toolbox_mock, configurations)
+
+        calls = [
+            call.register('total_hidden_layers', random.randint, 1, 5),
+            call.register('beta_1', random.uniform, 0.5, 0.8),
+            call.register('epsilon', random.uniform, 0.1, 0.9)
+        ]
+
+        toolbox_mock.assert_has_calls(calls)
+
     def test_given_a_configuration_when_register_from_configuration_the_attribute_should_be_registered_on_the_toolbox(self):
         configuration = ToolboxConfiguration(
             'total_hidden_layers',

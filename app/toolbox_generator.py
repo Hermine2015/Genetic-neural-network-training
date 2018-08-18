@@ -1,6 +1,9 @@
 from deap import creator, tools, base
 
 class ToolboxGenerator:
+    def register_all_from_configurations(self, toolbox, configurations):
+        [ self.register_from_configuration(toolbox, configuration) for configuration in configurations]
+
     def register_from_configuration(self, toolbox, configuration):
         toolbox.register(configuration.name, configuration.type, configuration.lower_bound,
                          configuration.upper_bound)
