@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
-from app.toolbox_configuration import ToolboxConfiguration
+from app.evolution_configuration import ToolboxConfiguration
 from app.toolbox_generator import ToolboxGenerator
 import random
 from unittest.mock import call
