@@ -2,7 +2,7 @@ from deap import creator, tools, base
 
 
 class ToolboxGenerator:
-    def get_toolbox(self, evolution_configuration):
+    def get_toolbox(self, evolution_configuration, evaluation_function):
         gene_configurations = evolution_configuration.genes
 
         toolbox = base.Toolbox()
@@ -12,6 +12,11 @@ class ToolboxGenerator:
 
         fitness = self._get_from_toolbox(creator, "FitnessMulti")
         self._initialise_individuals(toolbox, gene_configurations, fitness)
+
+        self._register_mutation(toolbox, evolution_configuration)
+        self._register_crossover(toolbox, evolution_configuration)
+        self._register_selection(toolbox, evolution_configuration)
+        self._register_evaluation(toolbox, evaluation_function)
 
         return toolbox
 
@@ -82,6 +87,9 @@ class ToolboxGenerator:
 
     def _register_tournament_selection(self, toolbox, parameters):
         toolbox.register("select", tools.selTournament, tournsize=parameters["tournament-size"])
+
+    def _register_evaluation(self, toolbox, evaluation_function):
+        toolbox.register("evaluate", evaluation_function)
 
     def _get_from_toolbox(self, toolbox, attribute_name):
         return getattr(toolbox, attribute_name)

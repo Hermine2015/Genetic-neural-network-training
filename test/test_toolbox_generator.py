@@ -13,13 +13,20 @@ class TestToolboxGenerator(TestCase):
     def test_given_a_list_of_configurations_when_get_toolbox_a_toolbox_should_be_registered_and_returned(self):
         evolution_configuration = self._get_evolution_configuration()
 
-        result = ToolboxGenerator().get_toolbox(evolution_configuration)
+        def evaluate():
+            return None
+
+        result = ToolboxGenerator().get_toolbox(evolution_configuration, evaluate)
 
         self.assertIsNotNone(result.total_hidden_layers)
         self.assertIsNotNone(result.beta_1)
         self.assertIsNotNone(result.epsilon)
         self.assertIsNotNone(result.individual)
         self.assertIsNotNone(result.population)
+        self.assertIsNotNone(result.mutate)
+        self.assertIsNotNone(result.mate)
+        self.assertIsNotNone(result.select)
+        self.assertIsNotNone(result.evaluate)
 
     def test_given_a_list_of_configurations_when_register_all_from_configurations_the_attributes_should_all_be_registered_on_the_toolbox(self):
         configurations = [
@@ -189,6 +196,15 @@ class TestToolboxGenerator(TestCase):
         with self.assertRaises(Exception) as context:
             ToolboxGenerator()._register_selection(toolbox_mock, evolutionary_configuration)
             self.assertTrue('Unsupported selection type: Privileged' in context.exception)
+
+    def test_given_an_evaluation_function_when_register_evaluation_then_the_evaluation_should_be_registered(
+            self):
+        toolbox_mock = MagicMock()
+        def evaluate(): return None
+
+        ToolboxGenerator()._register_evaluation(toolbox_mock, evaluate)
+
+        toolbox_mock.register.assert_called_with("evaluate", evaluate)
 
     def _get_evolution_configuration(self):
         configurations = [
