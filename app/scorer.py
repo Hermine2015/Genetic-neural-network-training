@@ -4,7 +4,12 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import f1_score
 
 class ScorerFactory:
-    def get_scorer_from_configuration(self, configuration):
+    def get_scorers(self, evolution_configuration):
+        scoring_configurations = evolution_configuration.scores
+
+        return [self._get_scorer_from_configuration(configuration) for configuration in scoring_configurations]
+
+    def _get_scorer_from_configuration(self, configuration):
         return {
             'accuracy': AccuracyScorer(),
             'recall': RecallScorer(),
