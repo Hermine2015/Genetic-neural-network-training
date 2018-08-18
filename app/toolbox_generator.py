@@ -8,7 +8,7 @@ class ToolboxGenerator:
         toolbox = base.Toolbox()
 
         self._register_all_from_configurations(toolbox, gene_configurations)
-        self._add_fitness_to_creator(creator, name="FitnessMulti") #todo change to get min and may from config
+        self._add_fitness_to_creator(creator, evolution_configuration, name="FitnessMulti")
 
         fitness = self._get_from_toolbox(creator, "FitnessMulti")
         self._initialise_individuals(toolbox, gene_configurations, fitness)
@@ -35,8 +35,18 @@ class ToolboxGenerator:
         toolbox.register("individual", tools.initCycle, creator.Individual, attributes_to_evolve, n=len(attributes_to_evolve))
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-    def _add_fitness_to_creator(self, creator, desired_scores=(-1.0), name="FitnessMulti"):
-        creator.create(name, base.Fitness, weights=desired_scores)
+    def _add_fitness_to_creator(self, creator, evolution_configuration, name="FitnessMulti"):
+        scores = evolution_configuration.scores
+
+        creator.create(name, base.Fitness, weights=self._get_mapped_scores(scores))
+
+    def _get_mapped_scores(self, scores):
+        return tuple([
+            1.0
+            if not score["minimize"]
+            else -1.0
+            for score in scores
+        ])
 
     def _get_attributes_to_evolve_from_configurations(self, toolbox, configurations):
         attributes_as_list = [

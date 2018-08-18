@@ -92,10 +92,12 @@ class TestToolboxGenerator(TestCase):
         toolbox_mock.assert_has_calls(calls)
 
     def test_given_desired_scores_when_add_fitness_to_creator_then_the_fitness_with_given_weights_should_be_registered(self):
-        desired_scores = (-1.0, -1.0, -1.0, -1.0, 1.0)
+        desired_scores = (1.0, -1.0)
         creator_mock = MagicMock()
 
-        ToolboxGenerator()._add_fitness_to_creator(creator_mock, desired_scores)
+        evolution_configuration = self._get_evolution_configuration()
+
+        ToolboxGenerator()._add_fitness_to_creator(creator_mock, evolution_configuration)
 
         creator_mock.create.assert_called_with("FitnessMulti", ANY, weights=desired_scores)
 
@@ -215,7 +217,14 @@ class TestToolboxGenerator(TestCase):
 
         return EvolutionConfiguration(
             configurations,
-            [{"name": "accuracy", "minimize": False}],
+            [
+                {
+                    "name": "accuracy", "minimize": False
+                },
+                {
+                    "name": "error", "minimize": True
+                }
+            ],
             {
                 "name": "Gaussian",
                 "mu": 0.0,
