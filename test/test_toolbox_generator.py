@@ -41,24 +41,31 @@ class TestToolboxGenerator(TestCase):
 
         toolbox_mock.register.assert_called_with('total_hidden_layers', random.randint, 1, 5)
 
+    @patch('app.toolbox_generator.ToolboxGenerator.get_attributes_to_evolve_from_configurations')
     @patch('deap.tools.initRepeat')
     @patch('deap.creator.create')
     @patch('deap.tools.initCycle')
     @patch('deap.creator')
     def test_given_attributes_to_evolve_when_initialise_individuals_the_attributes_for_individuals_should_be_registered_on_the_toolbox(self,
-                individual_mock, initialization_mock, create_mock, repeat_mock):
+                individual_mock, initialization_mock, create_mock, repeat_mock, get_attributes_mock):
 
-        attributes_to_evolve = MagicMock()
+        configurations = [
+            ToolboxConfiguration('total_hidden_layers', random.randint, 1, 5),
+            ToolboxConfiguration('beta_1', random.uniform, 0.5, 0.8),
+            ToolboxConfiguration('epsilon', random.uniform, 0.1, 0.9)
+        ]
+
+        get_attributes_mock.return_value = ( 'fake 1', 'fake 2', 'fake 3' )
+
         toolbox_mock = MagicMock()
         mock_fitness = MagicMock()
-        individual_size = 5
 
         individual_mock.return_value = MagicMock(Individual='fake')
 
-        ToolboxGenerator().initialise_individuals(toolbox_mock, attributes_to_evolve, individual_size, mock_fitness)
+        ToolboxGenerator().initialise_individuals(toolbox_mock, configurations, mock_fitness)
 
         calls = [
-            call.register('individual', initialization_mock, ANY, attributes_to_evolve, n=5),
+            call.register('individual', initialization_mock, ANY, ( 'fake 1', 'fake 2', 'fake 3' ), n=3),
             call.register('population', repeat_mock, list, toolbox_mock.individual)
         ]
 
