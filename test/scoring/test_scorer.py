@@ -1,6 +1,8 @@
 from unittest import TestCase
-from app.scorer import AccuracyScorer, RecallScorer, F1Scorer, PrecisionScorer, ScorerFactory
-from app.evolution_configuration import EvolutionConfiguration
+
+from app.evolution.evolution_configuration import EvolutionConfiguration
+from app.scoring.scorer import AccuracyScorer, RecallScorer, F1Scorer, PrecisionScorer, ScorerFactory
+
 
 class TestScorer(TestCase):
     def test_given_expected_and_predicted_labels_when_get_score_from_accuracy_scorer_then_the_accuracy_should_be_returned(self):

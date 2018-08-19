@@ -1,12 +1,14 @@
-from unittest import TestCase
-from unittest.mock import MagicMock
-from app.evolution_configuration import ToolboxConfiguration
-from app.toolbox_generator import ToolboxGenerator
 import random
+from app.evolution.evolution_configuration import EvolutionConfiguration
+from app.evolution.evolution_configuration import ToolboxConfiguration
+from unittest import TestCase
+from unittest.mock import ANY
+from unittest.mock import MagicMock
 from unittest.mock import call
 from unittest.mock import patch
-from unittest.mock import ANY
-from app.evolution_configuration import EvolutionConfiguration
+
+from app.evolution.toolbox_generator import ToolboxGenerator
+
 
 class TestToolboxGenerator(TestCase):
 
@@ -61,7 +63,7 @@ class TestToolboxGenerator(TestCase):
 
         toolbox_mock.register.assert_called_with('total_hidden_layers', random.randint, 1, 5)
 
-    @patch('app.toolbox_generator.ToolboxGenerator._get_attributes_to_evolve_from_configurations')
+    @patch('app.evolution.toolbox_generator.ToolboxGenerator._get_attributes_to_evolve_from_configurations')
     @patch('deap.tools.initRepeat')
     @patch('deap.creator.create')
     @patch('deap.tools.initCycle')
