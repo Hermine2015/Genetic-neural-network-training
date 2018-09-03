@@ -1,10 +1,8 @@
-from unittest import TestCase
-
 from app.evolution.evolution_configuration import EvolutionConfiguration
-from app.scoring.scorer import AccuracyScorer, RecallScorer, F1Scorer, PrecisionScorer, ScorerFactory
+from app.scoring.scorer import AccuracyScorer, RecallScorer, F1Scorer, PrecisionScorer, ScorerFactory, MeanIntersectionOverUnion
+import tensorflow as tf
 
-
-class TestScorer(TestCase):
+class TestScorer(tf.test.TestCase):
     def test_given_expected_and_predicted_labels_when_get_score_from_accuracy_scorer_then_the_accuracy_should_be_returned(self):
         expected = [1, 0, 1, 1, 0]
         predicted = [1, 0, 0, 0, 0]
@@ -40,6 +38,26 @@ class TestScorer(TestCase):
         score = F1Scorer().get_score(expected, predicted, classes)
 
         self.assertEqual(0.4, score)
+
+    def test_given_expected_and_predicted_labels_when_get_score_from_mean_interseacrion_over_union_scorer_then_the_mean_iou_score_should_be_returned(self):
+        label_int64 = tf.constant([
+            [[1, 1, 0, 0, 1, 0],
+             [0, 1, 1, 0, 1, 0]],
+            [[0, 0, 0, 0, 0, 0],
+             [1, 0, 1, 1, 1, 1]]], dtype=tf.int64)
+
+        predicted_perfect_int64 = tf.constant([
+            [[1, 1, 0, 0, 1, 0],
+             [0, 1, 1, 0, 1, 0]],
+            [[0, 0, 0, 0, 0, 0],
+             [1, 1, 1, 1, 1, 1]]], dtype=tf.int64)
+
+        with self.test_session():
+            iou, update_op = MeanIntersectionOverUnion().get_score(predicted_perfect_int64, label_int64)
+            tf.global_variables_initializer().run()
+            tf.local_variables_initializer().run()
+            update_op.eval()
+            self.assertEqual(iou.eval(), tf.to_float(0.9198718).eval())
 
     def test_given_a_configuration_when_get_scorer_then_the_correct_scorer_should_be_returned(self):
         factory = ScorerFactory()

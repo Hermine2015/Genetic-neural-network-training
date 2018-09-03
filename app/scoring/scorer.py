@@ -2,6 +2,9 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import f1_score
+import numpy as np
+import tensorflow as tf
+from keras import backend as keras_backend
 
 class ScorerFactory:
     def get_scorers(self, evolution_configuration):
@@ -36,3 +39,12 @@ class PrecisionScorer(Scorer):
 class F1Scorer(Scorer):
     def get_score(self, expected, predicted, classes):
         return f1_score(expected, predicted, average='weighted', labels=classes)
+
+class MeanIntersectionOverUnion():
+    def get_score(self, y_true, y_pred):
+        score, update_operation = tf.metrics.mean_iou(y_true, y_pred, 2)
+        keras_backend.get_session().run(tf.local_variables_initializer())
+        with tf.control_dependencies([update_operation]):
+            score = tf.identity(score)
+        return score, update_operation
+    
