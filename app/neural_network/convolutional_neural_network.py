@@ -19,9 +19,7 @@ class ConvolutionalNeuralNetwork:
         inputs = Input(input_dimentions)
         input_layer = Lambda(lambda x: x / 255)(inputs)
 
-        convolutional_layers = self._setup_convolution(input_layer, configuration.total_convolutional_layers, configuration.total_convolutional_filters,
-                                                       configuration.filter_size_convolution, configuration.pool_size,
-                                                       configuration.activation, configuration.padding)
+        convolutional_layers = self._setup_convolution(input_layer, configuration)
         last_layer = self._setup_deconvolution(convolutional_layers, total_deconvolutional_layers,
                                          total_deconvolutional_filters,
                                                configuration.filter_size_deconvolution, configuration.activation,
@@ -35,23 +33,24 @@ class ConvolutionalNeuralNetwork:
         return model
 
 
-    def _setup_convolution(self, input_layer, total_layers, total_filters, filter_size,
-                           pool_size, activation, padding):
+    def _setup_convolution(self, input_layer, configuration):
 
         previous_layer = input_layer
 
         convolutional_layers = []
 
-        for layer_index in range(0, total_layers):
+        total_filters = configuration.total_convolutional_filters
+
+        for layer_index in range(0, configuration.total_convolutional_layers):
             print('Creating convolution layer ' + str(layer_index))
 
-            convolutional_layer = Convolution2D(total_filters, filter_size, activation=activation,
-                                                padding=padding)(previous_layer)
-            convolutional_layer = Convolution2D(total_filters, filter_size, activation=activation,
-                                                padding=padding)(convolutional_layer)
+            convolutional_layer = Convolution2D(total_filters, configuration.filter_size_convolution,
+                                                activation=configuration.activation, padding=configuration.padding)(previous_layer)
+            convolutional_layer = Convolution2D(total_filters, configuration.filter_size_convolution,
+                                                activation=configuration.activation, padding=configuration.padding)(convolutional_layer)
 
-            if layer_index < total_layers - 1:
-                pooling_layer = MaxPooling2D(pool_size)(convolutional_layer)
+            if layer_index < configuration.total_convolutional_layers - 1:
+                pooling_layer = MaxPooling2D(configuration.pool_size)(convolutional_layer)
                 previous_layer = pooling_layer
             else:
                 previous_layer = convolutional_layer
