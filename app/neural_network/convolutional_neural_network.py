@@ -21,9 +21,7 @@ class ConvolutionalNeuralNetwork:
 
         convolutional_layers = self._setup_convolution(input_layer, configuration)
         last_layer = self._setup_deconvolution(convolutional_layers, total_deconvolutional_layers,
-                                         total_deconvolutional_filters,
-                                               configuration.filter_size_deconvolution, configuration.activation,
-                                               configuration.padding, configuration.strides, configuration.filter_size_deconvolution)
+                                               total_deconvolutional_filters, configuration)
 
         outputs = Convolution2D(1, (1, 1), activation=configuration.output_activation)(last_layer)
 
@@ -60,8 +58,7 @@ class ConvolutionalNeuralNetwork:
 
         return convolutional_layers
 
-    def _setup_deconvolution(self, covolutional_layers, total_layers, total_filters, filter_size_convolution,
-                             activation, padding, strides, filter_size_deconvolution):
+    def _setup_deconvolution(self, covolutional_layers, total_layers, total_filters, configuration):
 
         previous_layer = covolutional_layers[len(covolutional_layers) - 1]
 
@@ -70,15 +67,15 @@ class ConvolutionalNeuralNetwork:
 
         for layer_index in range(0, total_layers):
             print('Creating deconvolution layer ' + str(layer_index))
-            merged_layer = Conv2DTranspose(total_filters, filter_size_deconvolution, strides=strides, padding=padding)(
-                previous_layer)
+            merged_layer = Conv2DTranspose(total_filters, configuration.filter_size_deconvolution,
+                                           strides=configuration.strides, padding=configuration.padding)(previous_layer)
             convolution_to_reverse = covolutional_layers[len(covolutional_layers) - layer_index - 2]
             merged_layer = concatenate([merged_layer, convolution_to_reverse])
 
-            convolution_layer = Convolution2D(total_filters, filter_size_convolution, activation=activation,
-                                              padding=padding)(merged_layer)
-            convolution_layer = Convolution2D(total_filters, filter_size_convolution, activation=activation,
-                                              padding=padding)(convolution_layer)
+            convolution_layer = Convolution2D(total_filters, configuration.filter_size_convolution, activation=configuration.activation,
+                                              padding=configuration.padding)(merged_layer)
+            convolution_layer = Convolution2D(total_filters, configuration.filter_size_convolution, activation=configuration.activation,
+                                              padding=configuration.padding)(convolution_layer)
 
             deconvolutional_layers.append(convolution_layer)
             merged_layers.append(merged_layer)
