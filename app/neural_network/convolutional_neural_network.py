@@ -9,37 +9,28 @@ class ConvolutionalNeuralNetwork:
     def get_model(self,
                   input_dimentions,
                   metrics,
-                  total_convolutional_layers=5,
-                  total_convolutional_filters=8,
-                  filter_size_convolution=(3, 3),
-                  filter_size_deconvolution=(2, 2),
-                  pool_size=(2, 2),
-                  strides=(2, 2),
-                  activation='relu',
-                  padding='same',
-                  output_activation='sigmoid',
-                  optimizer='adam',
-                  loss='binary_crossentropy'
+                  configuration
                   ):
 
-        total_deconvolutional_filters = self._get_deconvolutional_filters(total_convolutional_layers,
-                                                                    total_convolutional_filters)
-        total_deconvolutional_layers = total_convolutional_layers - 1
+        total_deconvolutional_filters = self._get_deconvolutional_filters(configuration.total_convolutional_layers,
+                                                                          configuration.total_convolutional_filters)
+        total_deconvolutional_layers = configuration.total_convolutional_layers - 1
 
         inputs = Input(input_dimentions)
         input_layer = Lambda(lambda x: x / 255)(inputs)
 
-        convolutional_layers = self._setup_convolution(input_layer, total_convolutional_layers, total_convolutional_filters,
-                                                 filter_size_convolution, pool_size, activation, padding)
+        convolutional_layers = self._setup_convolution(input_layer, configuration.total_convolutional_layers, configuration.total_convolutional_filters,
+                                                       configuration.filter_size_convolution, configuration.pool_size,
+                                                       configuration.activation, configuration.padding)
         last_layer = self._setup_deconvolution(convolutional_layers, total_deconvolutional_layers,
                                          total_deconvolutional_filters,
-                                         filter_size_deconvolution, activation, padding, strides,
-                                         filter_size_deconvolution)
+                                               configuration.filter_size_deconvolution, configuration.activation,
+                                               configuration.padding, configuration.strides, configuration.filter_size_deconvolution)
 
-        outputs = Convolution2D(1, (1, 1), activation=output_activation)(last_layer)
+        outputs = Convolution2D(1, (1, 1), activation=configuration.output_activation)(last_layer)
 
         model = Model(inputs=[inputs], outputs=[outputs])
-        model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+        model.compile(optimizer=configuration.optimizer, loss=configuration.loss, metrics=metrics)
 
         return model
 

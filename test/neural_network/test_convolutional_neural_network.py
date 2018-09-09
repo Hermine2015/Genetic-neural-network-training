@@ -2,10 +2,7 @@ from app.neural_network.convolutional_neural_network import ConvolutionalNeuralN
 from keras import backend as K
 
 from tensorflow.test import TestCase
-import numpy as np
-import tensorflow as tf
-import os
-import sys
+from app.neural_network.convolutional_configuration import ConvolutionalConfiguration
 
 class TestNeuralNetwork(TestCase):
     def test_given_no_parameters_when_get_model_then_a_model_with_the_default_convolution_parameters_should_be_setup(self):
@@ -15,7 +12,7 @@ class TestNeuralNetwork(TestCase):
             return K.mean(K.stack([]), axis=0)
 
         with self.test_session() as sess:
-            model = ConvolutionalNeuralNetwork().get_model(input_dimensions, [mean_iou])
+            model = ConvolutionalNeuralNetwork().get_model(input_dimensions, [mean_iou], self._get_default_configuration())
 
             layers = model._nodes_by_depth.values()
 
@@ -69,7 +66,7 @@ class TestNeuralNetwork(TestCase):
             return K.mean(K.stack([]), axis=0)
 
         with self.test_session() as sess:
-            model = ConvolutionalNeuralNetwork().get_model(input_dimensions, [mean_iou])
+            model = ConvolutionalNeuralNetwork().get_model(input_dimensions, [mean_iou], self._get_default_configuration())
 
             layers = model._nodes_by_depth.values()
 
@@ -97,28 +94,43 @@ class TestNeuralNetwork(TestCase):
                              sess.graph.get_tensor_by_name("conv2d_transpose_4/kernel:0").shape.as_list())
 
 
-        def test_given_no_parameters_when_get_model_then_a_model_with_the_default_output_parameters_should_be_setup(
-                self):
-            input_dimensions = (128, 128, 1)
+    def test_given_no_parameters_when_get_model_then_a_model_with_the_default_output_parameters_should_be_setup(
+            self):
+        input_dimensions = (128, 128, 1)
 
-            def mean_iou(y_true, y_pred):
-                return K.mean(K.stack([]), axis=0)
+        def mean_iou(y_true, y_pred):
+            return K.mean(K.stack([]), axis=0)
 
-            with self.test_session() as sess:
-                model = ConvolutionalNeuralNetwork().get_model(input_dimensions, [mean_iou])
+        with self.test_session() as sess:
+            model = ConvolutionalNeuralNetwork().get_model(input_dimensions, [mean_iou], self._get_default_configuration())
 
-                layers = model._nodes_by_depth.values()
+            layers = model._nodes_by_depth.values()
 
-                outputs = {}
+            outputs = {}
 
-                for x in layers:
-                    nodes = x[0].inbound_layers
+            for x in layers:
+                nodes = x[0].inbound_layers
 
-                    if len(nodes) > 0:
-                        for node in nodes:
-                            outputs[node.name] = node.output_shape[3]
+                if len(nodes) > 0:
+                    for node in nodes:
+                        outputs[node.name] = node.output_shape[3]
 
 
-                self.assertEqual('sigmoid', model.layers[len(model.layers) - 1].activation.__name__)
-                self.assertEqual('Adam', type(model.optimizer).__name__)
-                self.assertEqual('binary_crossentropy', model.loss)
+            self.assertEqual('sigmoid', model.layers[len(model.layers) - 1].activation.__name__)
+            self.assertEqual('Adam', type(model.optimizer).__name__)
+            self.assertEqual('binary_crossentropy', model.loss)
+
+    def _get_default_configuration(self):
+        return ConvolutionalConfiguration(
+            total_convolutional_layers=5,
+            total_convolutional_filters=8,
+            filter_size_convolution=(3, 3),
+            filter_size_deconvolution=(2, 2),
+            pool_size=(2, 2),
+            strides=(2, 2),
+            activation='relu',
+            padding='same',
+            output_activation='sigmoid',
+            optimizer='adam',
+            loss='binary_crossentropy'
+        )
