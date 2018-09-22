@@ -42,9 +42,15 @@ class F1Scorer(Scorer):
 
 class MeanIntersectionOverUnion():
     def get_score(self, y_true, y_pred):
-        score, update_operation = tf.metrics.mean_iou(y_true, y_pred, 2)
+        score, update_operation = self.calculate_score(y_true, y_pred)
+
+        return score
+
+    def _calculate_score(self, y_true, y_pred):
+        score, update_operation = tf.metrics.mean_iou(y_true, y_pred, 2)  # TODO extract 2 to param num_classes
         keras_backend.get_session().run(tf.local_variables_initializer())
         with tf.control_dependencies([update_operation]):
             score = tf.identity(score)
+
         return score, update_operation
     

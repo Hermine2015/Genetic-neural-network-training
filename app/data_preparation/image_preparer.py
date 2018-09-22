@@ -13,7 +13,6 @@ class ObjectRecognitionImagePreparer:
         training_label = np.zeros((len(train_ids), dimensions[0], dimensions[1], dimensions[2]), dtype=np.bool)
 
         for index, image_id in enumerate(train_ids):
-            print('^^^^^^^^' + image_id)
             image = img.load_img(training_path + '/' + image_id)
             image_as_matrix = img.img_to_array(image)[:, :, 1]
             image_as_matrix = transform.resize(image_as_matrix, dimensions, mode='constant', preserve_range=True)
