@@ -21,19 +21,19 @@ class Evolver:
     def evolve(self, evolution_configuration):
         toolbox = ToolboxGenerator().get_toolbox(evolution_configuration, self.evaluate)
 
-        # TODO might need to move to __main__
-        pool = multiprocessing.Pool(processes=10) #TODO increase
+        pool = multiprocessing.Pool(processes=10)
 
         toolbox.register("map", pool.map)
 
         # TODO get params from config
-        pop = toolbox.population(n=50)
+        pop = toolbox.population(n=evolution_configuration.population)
 
-        total_generations = 25
+        total_generations = evolution_configuration.generations
 
         algorithms.eaSimple(
             pop, toolbox,
-            .3, .5,
+            evolution_configuration.crossover['probability'],
+            evolution_configuration.mutation['probability'],
             total_generations)
 
         top = sorted(pop, key=lambda x: x.fitness.values[0])[-1]

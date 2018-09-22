@@ -6,13 +6,17 @@ class EvolutionConfiguration:
                  scores,
                  mutation,
                  crossover,
-                 selection
+                 selection,
+                 population,
+                 generations
                  ):
         self.genes = genes
         self.scores = scores
         self.mutation = mutation
         self.crossover = crossover
         self.selection = selection
+        self.population = population
+        self.generations = generations
 
 class ToolboxConfiguration:
     def __init__(self,

@@ -3,7 +3,7 @@ import random
 from app.evolver import Evolver
 
 evolution_configuration = EvolutionConfiguration(
-    [
+    genes=[
         ToolboxConfiguration('total_convolutional_layers', random.randint, 2, 8), # for more layers, need to increase dimensions of images
         ToolboxConfiguration('total_convolutional_filters', random.randint, 2, 20),
         ToolboxConfiguration('filter_size_convolution_value', random.randint, 4, 8),
@@ -16,12 +16,14 @@ evolution_configuration = EvolutionConfiguration(
         ToolboxConfiguration('optimizer', random.randint, 0, 1),
         ToolboxConfiguration('loss', random.randint, 0, 1)
     ],
-    [
+    scores=[
         { "name": "accuracy", "minimize": False }
     ],
-    { "name": "Gaussian", "mu": 0.0, "sigma": 0.2, "indpb": 0.2, "probability": 0.3 },
-    { "name": "Two-point", "probability": 0.5 },
-    { "name": "Tournament", "tournament-size": 3 }
+    mutation={ "name": "Gaussian", "mu": 0.0, "sigma": 0.2, "indpb": 0.2, "probability": 0.3 },
+    crossover={ "name": "Two-point", "probability": 0.5 },
+    selection={ "name": "Tournament", "tournament-size": 3 },
+    population=50,
+    generations=25
 )
 
 if __name__ == "__main__":
