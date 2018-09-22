@@ -117,12 +117,11 @@ class TestEvolver(TestCase):
 
     @patch('app.evolver.Evolver._get_configuration_from_individual')
     @patch('keras.callbacks.EarlyStopping.__init__')
-    @patch('keras.callbacks.ModelCheckpoint.__init__')
     @patch('app.data_preparation.image_preparer.ObjectRecognitionImagePreparer.get_resized_training_data')
     @patch('app.scoring.scorer.MeanIntersectionOverUnion.get_score')
     @patch('app.neural_network.convolutional_neural_network.ConvolutionalNeuralNetwork.get_model')
     def test_given_an_individual_when_evaluate_then_the_neural_network_should_be_ran(
-            self, network_mock, score_mock, preparation_mock, early_stopping_mock, checpoint_mock, config_mock):
+            self, network_mock, score_mock, preparation_mock, early_stopping_mock, config_mock):
 
         individual, configuration = self.get_configuration_mock()
 
@@ -135,14 +134,13 @@ class TestEvolver(TestCase):
         model_mock.fit.return_value = History()
 
         early_stopping_mock.return_value = None
-        checpoint_mock.return_value = None
 
         result = Evolver(None, None, dimensions).evaluate(individual)
 
         network_mock.assert_called_with(dimensions, [score_mock], configuration)
         model_mock.fit.assert_called_with(['training'], ['label'],
                             validation_split=0.1, batch_size=8, epochs=30,
-                            callbacks=[Any(EarlyStopping), Any(ModelCheckpoint)])
+                            callbacks=[Any(EarlyStopping)])
 
         self.assertEqual((0.76,), result)
 

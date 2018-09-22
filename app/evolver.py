@@ -39,7 +39,7 @@ class Evolver:
 
         top = sorted(pop, key=lambda x: x.fitness.values[0])[-1]
 
-        return top
+        return self._get_configuration_from_individual(top)
 
     def evaluate(self, individual):
         evaluator = [ MeanIntersectionOverUnion().get_score ]
@@ -50,11 +50,10 @@ class Evolver:
 
         #TODO extract these params to some config
         earlystopper = EarlyStopping(patience=5, verbose=1)
-        checkpointer = ModelCheckpoint('model-tgs-salt-1.h5', verbose=1, save_best_only=True)
 
         history = model.fit(self.training_set, self.training_label,
                             validation_split=0.1, batch_size=8, epochs=30,
-                            callbacks=[earlystopper, checkpointer])
+                            callbacks=[earlystopper])
 
         return tuple([history.history['get_score'][-1]])
 

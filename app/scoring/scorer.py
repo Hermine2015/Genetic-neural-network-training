@@ -42,7 +42,7 @@ class F1Scorer(Scorer):
 
 class MeanIntersectionOverUnion():
     def get_score(self, y_true, y_pred):
-        score, update_operation = self.calculate_score(y_true, y_pred)
+        score, update_operation = self._calculate_score(y_true, y_pred)
 
         return score
 

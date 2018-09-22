@@ -23,7 +23,8 @@ evolution_configuration = EvolutionConfiguration(
     crossover={ "name": "Two-point", "probability": 0.5 },
     selection={ "name": "Tournament", "tournament-size": 3 },
     population=50,
-    generations=25
+    generations=25,
+    total_threads=10
 )
 
 if __name__ == "__main__":
@@ -31,6 +32,6 @@ if __name__ == "__main__":
     label_path = '/Users/georgieva_kristina/repositories/personal/data/train/masks'
     dimensions = (128, 128, 1)
 
-    evolver = Evolver(training_path, label_path, dimensions)
+    evolver = Evolver(training_path, label_path, dimensions, data_limit=30)
 
-    evolver.evolve(evolution_configuration)
+    result = evolver.evolve(evolution_configuration)
