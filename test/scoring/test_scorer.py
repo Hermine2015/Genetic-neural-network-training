@@ -93,6 +93,7 @@ class TestScorer(tf.test.TestCase):
             None,
             None,
             None,
+            None,
             None
         )
 

@@ -10,22 +10,23 @@ from app.scoring.scorer import MeanIntersectionOverUnion
 import multiprocessing
 
 class Evolver:
-    def __init__(self, training_path, label_path, dimensions):
+    def __init__(self, training_path, label_path, dimensions, data_limit=None):
         self.training_set, self.training_label = \
             ObjectRecognitionImagePreparer().get_resized_training_data(training_path, label_path, dimensions)
 
-        # TODO add limit to total training data via config
+        if data_limit is not None:
+            self.training_set = self.training_set[:data_limit]
+            self.training_label = self.training_label[:data_limit]
 
         self.dimensions = dimensions
 
     def evolve(self, evolution_configuration):
         toolbox = ToolboxGenerator().get_toolbox(evolution_configuration, self.evaluate)
 
-        pool = multiprocessing.Pool(processes=10)
+        pool = multiprocessing.Pool(processes=evolution_configuration.total_threads)
 
         toolbox.register("map", pool.map)
 
-        # TODO get params from config
         pop = toolbox.population(n=evolution_configuration.population)
 
         total_generations = evolution_configuration.generations
@@ -47,7 +48,7 @@ class Evolver:
 
         model = ConvolutionalNeuralNetwork().get_model(self.dimensions, evaluator, configuration)
 
-        #TODO extract these params to config
+        #TODO extract these params to some config
         earlystopper = EarlyStopping(patience=5, verbose=1)
         checkpointer = ModelCheckpoint('model-tgs-salt-1.h5', verbose=1, save_best_only=True)
 

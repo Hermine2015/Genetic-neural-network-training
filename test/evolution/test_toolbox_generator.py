@@ -243,5 +243,6 @@ class TestToolboxGenerator(TestCase):
                 "tournament-size": 3
             },
             50,
-            25
+            25,
+            10
         )

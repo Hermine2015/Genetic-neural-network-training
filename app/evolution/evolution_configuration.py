@@ -8,7 +8,8 @@ class EvolutionConfiguration:
                  crossover,
                  selection,
                  population,
-                 generations
+                 generations,
+                 total_threads
                  ):
         self.genes = genes
         self.scores = scores
@@ -17,6 +18,7 @@ class EvolutionConfiguration:
         self.selection = selection
         self.population = population
         self.generations = generations
+        self.total_threads = total_threads
 
 class ToolboxConfiguration:
     def __init__(self,
