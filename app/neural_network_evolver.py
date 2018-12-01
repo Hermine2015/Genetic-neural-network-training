@@ -18,7 +18,7 @@ class NeuralNetworkEvolver(Evolver):
 
         history = model.fit(self.training_set, self.training_label,
                             validation_split=0.1, batch_size=8, epochs=30,
-                            callbacks=[earlystopper])
+                            callbacks=[earlystopper], verbose=0)
 
         print(
             '\n-----------EVALUATING-------------\n' +

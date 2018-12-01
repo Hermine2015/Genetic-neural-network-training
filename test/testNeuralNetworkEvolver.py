@@ -97,7 +97,7 @@ class TestEvolver(TestCase):
         network_mock.assert_called_with(dimensions, [score_mock], configuration)
         model_mock.fit.assert_called_with(['training'], ['label'],
                             validation_split=0.1, batch_size=8, epochs=30,
-                            callbacks=[Any(EarlyStopping)])
+                            callbacks=[Any(EarlyStopping)], verbose=0)
 
         self.assertEqual((0.76,), result)
 

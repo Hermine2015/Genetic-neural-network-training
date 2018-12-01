@@ -21,4 +21,4 @@ To install dependencies run:
 
 ## Running the GA
 
-> python -m app.run
+> python -m app.run_nn_object_recognition
