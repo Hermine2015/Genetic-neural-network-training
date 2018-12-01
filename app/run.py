@@ -1,6 +1,6 @@
 from app.evolution.evolution_configuration import EvolutionConfiguration, ToolboxConfiguration
 import random
-from app.evolver import Evolver
+from app.neural_network_evolver import NeuralNetworkEvolver
 
 evolution_configuration = EvolutionConfiguration(
     genes=[
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     label_path = '/Users/georgieva_kristina/repositories/personal/data/train/masks'
     dimensions = (128, 128, 1)
 
-    evolver = Evolver(training_path, label_path, dimensions, data_limit=1000)
+    evolver = NeuralNetworkEvolver(training_path, label_path, dimensions, data_limit=1000)
 
     final_configuration_as_string = evolver.evolve(evolution_configuration)
 
