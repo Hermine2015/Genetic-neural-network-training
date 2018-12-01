@@ -39,9 +39,10 @@ class Evolver:
 
         top = sorted(pop, key=lambda x: x.fitness.values[0])[-1]
 
-        return self._get_configuration_from_individual(top)
+        return self.get_configuration_as_string_from_individual(top)
 
     def evaluate(self, individual):
+
         evaluator = [ MeanIntersectionOverUnion().get_score ]
 
         configuration = self._get_configuration_from_individual(individual)
@@ -49,11 +50,18 @@ class Evolver:
         model = ConvolutionalNeuralNetwork().get_model(self.dimensions, evaluator, configuration)
 
         #TODO extract these params to some config
-        earlystopper = EarlyStopping(patience=5, verbose=1)
+        earlystopper = EarlyStopping(patience=5, verbose=0)
 
         history = model.fit(self.training_set, self.training_label,
                             validation_split=0.1, batch_size=8, epochs=30,
                             callbacks=[earlystopper])
+
+        print(
+            '\n-----------EVALUATING-------------\n' +
+            self._get_configuration_as_string_from_individual(individual) +
+            '\n#### SCORE: {} ####'.format(history.history['get_score'][-1]) +
+            '\n-------------------------------'
+        )
 
         return tuple([history.history['get_score'][-1]])
 
@@ -62,6 +70,20 @@ class Evolver:
 
         return rounded_value if rounded_value % 2 == 0 else rounded_value + 1
 
+    def _get_configuration_as_string_from_individual(self, individual):
+        configuration = self._get_configuration_from_individual(individual)
+
+        labels = '\n'.join(['total_convolutional_layers: {}', 'total_convolutional_filters: {}',
+                            'filter_size_convolution: {}', 'filter_size_deconvolution: {}', 'pool_size: {}',
+                            'strides: {}', 'activation: {}', 'padding: {}', 'optimizer: {}',
+                            'output_activation: {}', 'loss: {}'])
+
+        return labels.format(configuration.total_convolutional_layers, configuration.total_convolutional_filters,
+                             configuration.filter_size_convolution, configuration.filter_size_deconvolution,
+                             configuration.pool_size, configuration.strides, configuration.activation,
+                             configuration.padding, configuration.optimizer, configuration.output_activation,
+                             configuration.loss)
+        
     def _get_configuration_from_individual(self, individual):
         return ConvolutionalConfiguration(
             total_convolutional_layers=self._get_int(individual[0]),

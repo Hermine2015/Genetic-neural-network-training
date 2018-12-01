@@ -40,8 +40,6 @@ class ConvolutionalNeuralNetwork:
         total_filters = configuration.total_convolutional_filters
 
         for layer_index in range(0, configuration.total_convolutional_layers):
-            print('Creating convolution layer ' + str(layer_index))
-
             convolutional_layer = Convolution2D(total_filters, configuration.filter_size_convolution,
                                                 activation=configuration.activation, padding=configuration.padding)(previous_layer)
             convolutional_layer = Convolution2D(total_filters, configuration.filter_size_convolution,
@@ -66,7 +64,6 @@ class ConvolutionalNeuralNetwork:
         merged_layers = []
 
         for layer_index in range(0, total_layers):
-            print('Creating deconvolution layer ' + str(layer_index))
             merged_layer = Conv2DTranspose(total_filters, configuration.filter_size_deconvolution,
                                            strides=configuration.strides, padding=configuration.padding)(previous_layer)
             convolution_to_reverse = covolutional_layers[len(covolutional_layers) - layer_index - 2]

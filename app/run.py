@@ -22,7 +22,7 @@ evolution_configuration = EvolutionConfiguration(
     mutation={ "name": "Gaussian", "mu": 0.0, "sigma": 0.2, "indpb": 0.2, "probability": 0.3 },
     crossover={ "name": "Two-point", "probability": 0.5 },
     selection={ "name": "Tournament", "tournament-size": 3 },
-    population=50,
+    population=25,
     generations=25,
     total_threads=10
 )
@@ -32,6 +32,10 @@ if __name__ == "__main__":
     label_path = '/Users/georgieva_kristina/repositories/personal/data/train/masks'
     dimensions = (128, 128, 1)
 
-    evolver = Evolver(training_path, label_path, dimensions, data_limit=30)
+    evolver = Evolver(training_path, label_path, dimensions, data_limit=1000)
 
-    result = evolver.evolve(evolution_configuration)
+    final_configuration_as_string = evolver.evolve(evolution_configuration)
+
+    print('-----------------------------------------------')
+    print(final_configuration_as_string)
+    print('-----------------------------------------------')

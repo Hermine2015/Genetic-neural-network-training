@@ -39,7 +39,7 @@ class TestScorer(tf.test.TestCase):
 
         self.assertEqual(0.4, score)
 
-    def test_given_expected_and_predicted_labels_when_calculate_score_from_mean_interseacrion_over_union_scorer_then_the_mean_iou_score_should_be_returned(self):
+    def test_given_expected_and_predicted_labels_when_calculate_score_from_mean_iou_scorer_then_the_mean_iou_score_should_be_returned(self):
         labels = [
             [[1, 1, 0, 0, 1, 0],
              [0, 1, 1, 0, 1, 0]],
@@ -56,11 +56,11 @@ class TestScorer(tf.test.TestCase):
         predicted_int64 = tf.constant(predictions, dtype=tf.int64)
 
         with self.test_session() as sess:
-            iou, update = MeanIntersectionOverUnion()._calculate_score(label_int64, predicted_int64)
+            iou = MeanIntersectionOverUnion()._calculate_score(label_int64, predicted_int64)
             tf.global_variables_initializer().run()
             tf.local_variables_initializer().run()
 
-            sess.run(update)
+            sess.run(iou)
             self.assertEqual(iou.eval(), tf.to_float(0.9198718).eval())
 
     def test_given_a_configuration_when_get_scorer_then_the_correct_scorer_should_be_returned(self):

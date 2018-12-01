@@ -144,6 +144,30 @@ class TestEvolver(TestCase):
 
         self.assertEqual((0.76,), result)
 
+    @patch('app.data_preparation.image_preparer.ObjectRecognitionImagePreparer.get_resized_training_data')
+    def test_given_an_individual_when_get_configuration_as_string_from_individual_a_formatted_String_should_be_returned(
+            self, preparation_mock):
+
+        preparation_mock.return_value = ['training'], ['label']
+
+        individual = [5, 8, 3, 2, 2, 2, 0, 0, 1, 0, 0]
+
+        config_as_string = Evolver(None, None, (124, 124, 1))._get_configuration_as_string_from_individual(individual)
+
+        expected = 'total_convolutional_layers: 5\n' \
+                   'total_convolutional_filters: 8\n' \
+                   'filter_size_convolution: (4, 4)\n' \
+                   'filter_size_deconvolution: (2, 2)\n' \
+                   'pool_size: (2, 2)\n' \
+                   'strides: (2, 2)\n' \
+                   'activation: relu\n' \
+                   'padding: same\n' \
+                   'optimizer: adam\n' \
+                   'output_activation: sigmoid\n' \
+                   'loss: binary_crossentropy'
+
+        self.assertEqual(config_as_string, expected)
+
     def get_configuration_mock(self):
         individual = [5, 8, 3, 2, 2, 2, 0, 0, 1, 0, 0]
 

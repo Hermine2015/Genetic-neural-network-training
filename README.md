@@ -18,3 +18,7 @@ To install dependencies run:
 ## Running tests
 
 > python -m unittest
+
+## Running the GA
+
+> python -m app.run
